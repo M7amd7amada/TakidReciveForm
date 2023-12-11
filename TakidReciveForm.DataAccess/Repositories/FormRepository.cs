@@ -1,5 +1,7 @@
 using AutoMapper;
+
 using Microsoft.EntityFrameworkCore;
+
 using TakidReciveForm.DataAccess.Data;
 using TakidReciveForm.Domain.Data;
 using TakidReciveForm.Domain.DTOs.ReadDTOs;
@@ -41,6 +43,7 @@ public class FormRepository : IFormRepository
         int pageSize = 5;
 
         var result = _appDbContext.Forms
+            .AsNoTracking()
             .OrderBy(f => f.FormId)
             .GetPaged(page, pageSize);
 
@@ -50,7 +53,9 @@ public class FormRepository : IFormRepository
     public async Task<FormReadDto> GetByIdAsync(Guid id)
     {
         var result = await _appDbContext.Forms
-                .FirstOrDefaultAsync(f => f.FormId == id);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(f =>
+                    f.FormId == id);
         var formDto = _mapper.Map<FormReadDto>(result);
         if (result != null)
         {
@@ -62,8 +67,9 @@ public class FormRepository : IFormRepository
         }
     }
 
-    public async Task<FormReadDto> InsertAsync(FormWriteDto formWriteDto)
+    public async Task<FormReadDto> InsertAsync(FormWriteDto formWriteDto, string imageName)
     {
+        formWriteDto.Image = imageName;
         var form = _mapper.Map<Form>(formWriteDto);
         var result = await _appDbContext.Forms.AddAsync(form);
         await _appDbContext.SaveChangesAsync();
@@ -71,9 +77,10 @@ public class FormRepository : IFormRepository
         return formReadDto;
     }
 
-    public async Task<FormReadDto> UpdateAsync(Form form)
+    public async Task<FormReadDto> UpdateAsync(Form form, string imageName)
     {
         var result = await _appDbContext.Forms.FirstOrDefaultAsync(f => f.FormId == form.FormId);
+        form.Image = imageName;
         if (result is not null)
         {
             // Update existing person

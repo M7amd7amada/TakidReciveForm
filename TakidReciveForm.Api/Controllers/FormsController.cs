@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
+using TakidReciveForm.Api.Services;
 using TakidReciveForm.Domain.DTOs.WriteDTOs;
 using TakidReciveForm.Domain.Interfaces;
 using TakidReciveForm.Domain.Models;
@@ -11,16 +12,19 @@ namespace TakidReciveForm.Api.Controllers;
 public class FormsController : ControllerBase
 {
     private readonly IFormRepository _formRepository;
+    private readonly IImagesService _imagesService;
 
-    public FormsController(IFormRepository formRepository)
+    public FormsController(IFormRepository formRepository, IImagesService imagesService)
     {
         _formRepository = formRepository;
+        _imagesService = imagesService;
     }
 
     [HttpPost]
-    public async Task<IActionResult> Insert([FromForm] FormWriteDto formWriteDto)
+    public async Task<IActionResult> Insert([FromForm] FormWriteDto formWriteDto, IFormFile image)
     {
-        return Ok(await _formRepository.InsertAsync(formWriteDto));
+        var imageName = await _imagesService.SaveImage(image);
+        return Ok(await _formRepository.InsertAsync(formWriteDto, imageName));
     }
 
     [HttpGet]
@@ -36,9 +40,11 @@ public class FormsController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> Update([FromForm] Form form)
+    public async Task<IActionResult> Update([FromForm] Form form, IFormFile image)
     {
-        return Ok(await _formRepository.UpdateAsync(form));
+        _imagesService.DeleteImage(form.Image);
+        var imageName = await _imagesService.SaveImage(image);
+        return Ok(await _formRepository.UpdateAsync(form, imageName));
     }
 
     [HttpDelete]
