@@ -13,6 +13,12 @@ public class ImagesService : IImagesService
         _imagesPath = $"{_webHostEnvironment.WebRootPath}{FileSettings.ImagesPath}";
     }
 
+    public void ConvertToImage(string base64, string fileName)
+    {
+        byte[] bytes = Convert.FromBase64String(base64);
+        string filePath = Path.Combine(_imagesPath, fileName);
+        File.WriteAllBytes(filePath, bytes);
+    }
     public void DeleteImage(string imageName)
     {
         var image = Path.Combine(_imagesPath, imageName);

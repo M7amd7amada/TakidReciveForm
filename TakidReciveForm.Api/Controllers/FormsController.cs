@@ -21,10 +21,10 @@ public class FormsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Insert([FromForm] FormWriteDto formWriteDto, IFormFile image)
+    public async Task<IActionResult> Insert([FromForm] FormWriteDto formWriteDto)
     {
-        var imageName = await _imagesService.SaveImage(image);
-        return Ok(await _formRepository.InsertAsync(formWriteDto, imageName));
+        _imagesService.ConvertToImage(formWriteDto.ImageBase64, formWriteDto.ImageName);
+        return Ok(await _formRepository.InsertAsync(formWriteDto));
     }
 
     [HttpGet]
@@ -40,11 +40,10 @@ public class FormsController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> Update([FromForm] Form form, IFormFile image)
+    public async Task<IActionResult> Update([FromForm] Form form)
     {
-        _imagesService.DeleteImage(form.Image);
-        var imageName = await _imagesService.SaveImage(image);
-        return Ok(await _formRepository.UpdateAsync(form, imageName));
+        _imagesService.ConvertToImage(form.ImageBase64, form.ImageName);
+        return Ok(await _formRepository.UpdateAsync(form));
     }
 
     [HttpDelete]

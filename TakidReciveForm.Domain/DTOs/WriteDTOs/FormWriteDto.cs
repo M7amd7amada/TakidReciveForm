@@ -13,7 +13,9 @@ public record FormWriteDto
     [Required]
     public string DeliveryTime { get; set; } = default!;
     [Required]
-    public string Image { get; set; } = default!;
+    public string ImageBase64 { get; set; } = default!;
+    [Required]
+    public string ImageName { get; set; } = default!;
     [Required]
     public string ReasonForReceipt { get; set; } = default!;
     [Required]

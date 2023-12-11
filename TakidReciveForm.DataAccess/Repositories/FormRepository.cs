@@ -67,9 +67,8 @@ public class FormRepository : IFormRepository
         }
     }
 
-    public async Task<FormReadDto> InsertAsync(FormWriteDto formWriteDto, string imageName)
+    public async Task<FormReadDto> InsertAsync(FormWriteDto formWriteDto)
     {
-        formWriteDto.Image = imageName;
         var form = _mapper.Map<Form>(formWriteDto);
         var result = await _appDbContext.Forms.AddAsync(form);
         await _appDbContext.SaveChangesAsync();
@@ -77,10 +76,9 @@ public class FormRepository : IFormRepository
         return formReadDto;
     }
 
-    public async Task<FormReadDto> UpdateAsync(Form form, string imageName)
+    public async Task<FormReadDto> UpdateAsync(Form form)
     {
         var result = await _appDbContext.Forms.FirstOrDefaultAsync(f => f.FormId == form.FormId);
-        form.Image = imageName;
         if (result is not null)
         {
             // Update existing person
