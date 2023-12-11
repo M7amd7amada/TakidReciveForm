@@ -51,4 +51,13 @@ public class FormsController : ControllerBase
     {
         return Ok(await _formRepository.DeleteAsync(id));
     }
+
+    [HttpPost]
+    public IActionResult Upload([FromQuery] string imagePath)
+    {
+        string imageName = Path.GetFileName(imagePath);
+        string base64 = _imagesService.ConvertToBase64(imagePath);
+        _imagesService.ConvertToImage(base64, imageName);
+        return Ok();
+    }
 }

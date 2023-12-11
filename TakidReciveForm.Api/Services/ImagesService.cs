@@ -13,6 +13,20 @@ public class ImagesService : IImagesService
         _imagesPath = $"{_webHostEnvironment.WebRootPath}{FileSettings.ImagesPath}";
     }
 
+    public string ConvertToBase64(string path)
+    {
+        if (File.Exists(path))
+        {
+            byte[] imageBytes = File.ReadAllBytes(path);
+            string base64 = Convert.ToBase64String(imageBytes);
+            return base64;
+        }
+        else
+        {
+            throw new FileNotFoundException($"Image file not found at path: {path}");
+        }
+    }
+
     public void ConvertToImage(string base64, string fileName)
     {
         byte[] bytes = Convert.FromBase64String(base64);
