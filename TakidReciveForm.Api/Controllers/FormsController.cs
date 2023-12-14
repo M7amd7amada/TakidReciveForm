@@ -33,7 +33,7 @@ public class FormsController : ControllerBase
         return Ok(_formRepository.GetAll(page));
     }
 
-    [HttpGet()]
+    [HttpGet]
     public async Task<IActionResult> GetById([FromQuery] Guid id)
     {
         return Ok(await _formRepository.GetByIdAsync(id));
@@ -53,11 +53,11 @@ public class FormsController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Upload([FromQuery] string imagePath)
+    public IActionResult UploadImage([FromQuery] string imagePath)
     {
         string imageName = Path.GetFileName(imagePath);
         string base64 = _imagesService.ConvertToBase64(imagePath);
         _imagesService.ConvertToImage(base64, imageName);
-        return Ok();
+        return Ok(base64);
     }
 }
