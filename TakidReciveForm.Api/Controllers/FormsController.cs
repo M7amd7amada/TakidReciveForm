@@ -4,6 +4,7 @@ using TakidReciveForm.Api.Services;
 using TakidReciveForm.Domain.DTOs.WriteDTOs;
 using TakidReciveForm.Domain.Interfaces;
 using TakidReciveForm.Domain.Models;
+using TakidReciveForm.Domain.Services;
 
 namespace TakidReciveForm.Api.Controllers;
 
@@ -13,18 +14,27 @@ public class FormsController : ControllerBase
 {
     private readonly IFormRepository _formRepository;
     private readonly IImagesService _imagesService;
+    private readonly IAttachmentService _attachmentService;
+    private readonly IWebHostEnvironment _webHostEnvironment;
+    private readonly string _rootPath;
 
-    public FormsController(IFormRepository formRepository, IImagesService imagesService)
+    public FormsController(
+        IFormRepository formRepository,
+        IImagesService imagesService,
+        IAttachmentService attachmentService,
+        IWebHostEnvironment webHostEnvironment)
     {
         _formRepository = formRepository;
         _imagesService = imagesService;
+        _attachmentService = attachmentService;
+        _webHostEnvironment = webHostEnvironment;
+        _rootPath = $"{_webHostEnvironment.WebRootPath}{FileSettings.ImagesPath}";
     }
 
     [HttpPost]
     public async Task<IActionResult> Insert([FromForm] FormWriteDto formWriteDto)
     {
-        _imagesService.ConvertToImage(formWriteDto.ImageBase64, formWriteDto.ImageName);
-        return Ok(await _formRepository.InsertAsync(formWriteDto));
+        return Ok(await _formRepository.InsertAsync(formWriteDto, _rootPath));
     }
 
     [HttpGet]

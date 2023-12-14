@@ -8,18 +8,24 @@ using TakidReciveForm.Domain.DTOs.ReadDTOs;
 using TakidReciveForm.Domain.DTOs.WriteDTOs;
 using TakidReciveForm.Domain.Interfaces;
 using TakidReciveForm.Domain.Models;
+using TakidReciveForm.Domain.Services;
 
 namespace TakidReciveForm.DataAccess.Repositories;
 
 public class FormRepository : IFormRepository
 {
     private readonly AppDbContext _appDbContext;
+    private readonly IAttachmentService _attachmentService;
     private readonly IMapper _mapper;
 
-    public FormRepository(AppDbContext context, IMapper mapper)
+    public FormRepository(
+        AppDbContext context,
+        IMapper mapper,
+        IAttachmentService attachmentService)
     {
         _appDbContext = context;
         _mapper = mapper;
+        _attachmentService = attachmentService;
     }
 
     public async Task<FormReadDto?> DeleteAsync(Guid id)
@@ -67,8 +73,9 @@ public class FormRepository : IFormRepository
         }
     }
 
-    public async Task<FormReadDto> InsertAsync(FormWriteDto formWriteDto)
+    public async Task<FormReadDto> InsertAsync(FormWriteDto formWriteDto, string rootPath)
     {
+        await SaveImage(formWriteDto, rootPath);
         var form = _mapper.Map<Form>(formWriteDto);
         var result = await _appDbContext.Forms.AddAsync(form);
         await _appDbContext.SaveChangesAsync();
@@ -81,7 +88,6 @@ public class FormRepository : IFormRepository
         var result = await _appDbContext.Forms.FirstOrDefaultAsync(f => f.FormId == form.FormId);
         if (result is not null)
         {
-            // Update existing person
             _appDbContext.Entry(result).CurrentValues.SetValues(form);
             await _appDbContext.SaveChangesAsync();
         }
@@ -91,5 +97,15 @@ public class FormRepository : IFormRepository
         }
         var formReadDto = _mapper.Map<FormReadDto>(result);
         return formReadDto;
+    }
+
+    private async Task SaveImage(FormWriteDto formWriteDto, string rootPath)
+    {
+        if (_attachmentService.IsBase64String(formWriteDto.ImageBase64))
+        {
+            byte[] bytes = _attachmentService.GetBytes(formWriteDto.ImageBase64);
+            string path = _attachmentService.GetFilePath(formWriteDto.ImageName, rootPath);
+            await _attachmentService.SaveFileAsync(bytes, path);
+        }
     }
 }

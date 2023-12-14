@@ -10,6 +10,6 @@ public interface IFormRepository
     public PagedResult<Form> GetAll(int page);
     public Task<FormReadDto> GetByIdAsync(Guid id);
     public Task<FormReadDto?> DeleteAsync(Guid id);
-    public Task<FormReadDto> InsertAsync(FormWriteDto form);
+    public Task<FormReadDto> InsertAsync(FormWriteDto form, string attachmentsPath);
     public Task<FormReadDto> UpdateAsync(Form form);
 }
