@@ -17,6 +17,19 @@ public class AttachmentService : IAttachmentService
         return Convert.ToBase64String(GetBytes(str));
     }
 
+    public string ConvertBase46ToString(string base64)
+    {
+        if (IsBase64String(base64.Trim()))
+        {
+            byte[] bytes = Convert.FromBase64String(base64);
+            return GetString(bytes);
+        }
+        else
+        {
+            throw new FormatException(nameof(base64));
+        }
+    }
+
     public byte[] GetBytes(string str)
     {
         return Encoding.UTF8.GetBytes(str);
@@ -40,19 +53,6 @@ public class AttachmentService : IAttachmentService
     public async Task SaveFileAsync(byte[] bytes, string filePath)
     {
         await File.WriteAllBytesAsync(filePath, bytes);
-    }
-
-    public string ConvertBase46ToString(string base64)
-    {
-        if (IsBase64String(base64.Trim()))
-        {
-            byte[] bytes = Convert.FromBase64String(base64);
-            return GetString(bytes);
-        }
-        else
-        {
-            throw new FormatException(nameof(base64));
-        }
     }
 
     public void DeleteFile(string fileName, string filePath)
