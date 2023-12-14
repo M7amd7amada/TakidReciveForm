@@ -7,7 +7,7 @@ namespace TakidReciveForm.Domain.Interfaces;
 
 public interface IFormRepository
 {
-    public PagedResult<Form> GetAll(int page);
+    public PagedResult<FormReadDto> GetAll(int page);
     public Task<FormReadDto> GetByIdAsync(Guid id);
     public Task<FormReadDto?> DeleteAsync(Guid id, string attachmentsPath);
     public Task<FormReadDto> InsertAsync(FormWriteDto form, string attachmentsPath);
