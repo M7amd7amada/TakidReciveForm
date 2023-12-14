@@ -27,6 +27,11 @@ public class AttachmentService : IAttachmentService
         return Encoding.UTF8.GetString(bytes);
     }
 
+    public byte[] GetBase64Bytes(string base64)
+    {
+        return Convert.FromBase64String(base64);
+    }
+
     public string GetFilePath(string fileName, string filePath)
     {
         return Path.Combine(filePath, fileName);

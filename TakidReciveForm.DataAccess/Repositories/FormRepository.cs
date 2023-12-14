@@ -28,9 +28,14 @@ public class FormRepository : IFormRepository
         _attachmentService = attachmentService;
     }
 
-    public async Task<FormReadDto?> DeleteAsync(Guid id)
+    public async Task<FormReadDto?> DeleteAsync(Guid id, string rootPath)
     {
         var result = await _appDbContext.Forms.FirstOrDefaultAsync(f => f.FormId == id);
+
+        // Delete Image Of The Form
+        if (result is not null)
+            _attachmentService.DeleteFile(result.ImageName, rootPath);
+
         var formDto = _mapper.Map<FormReadDto>(result);
         if (result != null)
         {
@@ -75,7 +80,7 @@ public class FormRepository : IFormRepository
 
     public async Task<FormReadDto> InsertAsync(FormWriteDto formWriteDto, string rootPath)
     {
-        await SaveImage(formWriteDto, rootPath);
+        await SaveImage(formWriteDto.ImageBase64, formWriteDto.ImageName, rootPath);
         var form = _mapper.Map<Form>(formWriteDto);
         var result = await _appDbContext.Forms.AddAsync(form);
         await _appDbContext.SaveChangesAsync();
@@ -83,9 +88,18 @@ public class FormRepository : IFormRepository
         return formReadDto;
     }
 
-    public async Task<FormReadDto> UpdateAsync(Form form)
+    public async Task<FormReadDto> UpdateAsync(Form form, string rootPath)
     {
         var result = await _appDbContext.Forms.FirstOrDefaultAsync(f => f.FormId == form.FormId);
+
+        if (form.ImageBase64 != result!.ImageBase64)
+        {
+            // Delete Old Image
+            _attachmentService.DeleteFile(result.ImageName, rootPath);
+            // Add The New Image
+            await SaveImage(form.ImageBase64, form.ImageName, rootPath);
+        }
+
         if (result is not null)
         {
             _appDbContext.Entry(result).CurrentValues.SetValues(form);
@@ -99,12 +113,12 @@ public class FormRepository : IFormRepository
         return formReadDto;
     }
 
-    private async Task SaveImage(FormWriteDto formWriteDto, string rootPath)
+    private async Task SaveImage(string imageBase64, string imageName, string rootPath)
     {
-        if (_attachmentService.IsBase64String(formWriteDto.ImageBase64))
+        if (_attachmentService.IsBase64String(imageBase64))
         {
-            byte[] bytes = _attachmentService.GetBytes(formWriteDto.ImageBase64);
-            string path = _attachmentService.GetFilePath(formWriteDto.ImageName, rootPath);
+            byte[] bytes = _attachmentService.GetBase64Bytes(imageBase64);
+            string path = _attachmentService.GetFilePath(imageName, rootPath);
             await _attachmentService.SaveFileAsync(bytes, path);
         }
     }
