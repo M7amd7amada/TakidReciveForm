@@ -1,4 +1,5 @@
 using AutoMapper;
+
 using TakidReciveForm.Domain.Data;
 using TakidReciveForm.Domain.DTOs.ReadDTOs;
 using TakidReciveForm.Domain.DTOs.WriteDTOs;
@@ -12,6 +13,7 @@ public class MappingProfile : Profile
     {
         // Forms
         CreateMap<Form, FormReadDto>();
+        CreateMap<PagedResult<Form>, PagedResult<FormReadDto>>();
         CreateMap<FormWriteDto, Form>();
     }
 }

@@ -49,16 +49,18 @@ public class FormRepository : IFormRepository
         return formDto;
     }
 
-    public PagedResult<Form> GetAll(int page = 1)
+    public PagedResult<FormReadDto> GetAll(int page = 1)
     {
         int pageSize = 5;
 
         var result = _appDbContext.Forms
             .AsNoTracking()
-            .OrderBy(f => f.FormId)
+            .OrderBy(f => f.ReceiverName)
             .GetPaged(page, pageSize);
 
-        return result;
+        var formReadDto = _mapper.Map<PagedResult<FormReadDto>>(result);
+
+        return formReadDto;
     }
 
     public async Task<FormReadDto> GetByIdAsync(Guid id)
@@ -68,14 +70,9 @@ public class FormRepository : IFormRepository
                 .FirstOrDefaultAsync(f =>
                     f.FormId == id);
         var formDto = _mapper.Map<FormReadDto>(result);
-        if (result != null)
-        {
-            return formDto;
-        }
-        else
-        {
-            throw new KeyNotFoundException("Form not found");
-        }
+        return result is not null
+            ? formDto
+            : throw new KeyNotFoundException("Form not found");
     }
 
     public async Task<FormReadDto> InsertAsync(FormWriteDto formWriteDto, string rootPath)
