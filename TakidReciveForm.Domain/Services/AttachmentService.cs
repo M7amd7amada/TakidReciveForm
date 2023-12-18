@@ -1,7 +1,5 @@
 using System.Text;
 
-using TakidReciveForm.Domain.Models;
-
 namespace TakidReciveForm.Domain.Services;
 
 public class AttachmentService : IAttachmentService

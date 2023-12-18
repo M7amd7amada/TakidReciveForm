@@ -1,22 +1,8 @@
-using Microsoft.EntityFrameworkCore;
-
-using TakidReciveForm.DataAccess.Data;
-using TakidReciveForm.DataAccess.Repositories;
-using TakidReciveForm.Domain.Helper;
-using TakidReciveForm.Domain.Interfaces;
-using TakidReciveForm.Domain.Services;
+using TakidReciveForm.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("SqlServer");
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString));
-builder.Services.AddControllers();
-builder.Services.AddScoped<IFormRepository, FormRepository>();
-builder.Services.AddScoped<IAttachmentService, AttachmentService>();
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.ConfigureServices();
 
 var app = builder.Build();
 
